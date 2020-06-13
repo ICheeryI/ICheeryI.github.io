@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>http://ICheeryI.github.io</id>
-    <title>Gridea</title>
-    <updated>2020-06-13T04:50:12.366Z</updated>
+    <title>侠客行|</title>
+    <updated>2020-06-13T04:51:48.424Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="http://ICheeryI.github.io"/>
     <link rel="self" href="http://ICheeryI.github.io/atom.xml"/>
-    <subtitle>温故而知新</subtitle>
+    <subtitle>学如逆水行舟</subtitle>
     <logo>http://ICheeryI.github.io/images/avatar.png</logo>
     <icon>http://ICheeryI.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, Gridea</rights>
+    <rights>All rights reserved 2020, 侠客行|</rights>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
         <id>http://ICheeryI.github.io/post/hello-gridea/</id>
