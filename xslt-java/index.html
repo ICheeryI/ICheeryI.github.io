@@ -97,12 +97,13 @@ public class xsl_demo {
 <ol>
 <li>该代码来源于HW中的一个系统的代码简化，其中path:(F:\xsl\123.xml&quot;) 可控，其中path文件内容通过文件上传得到，这里代码中StreamSource() 获取到XML流，所以不必关心path文件的后缀</li>
 <li>代码的本身功能是用来用作xml的格式转换和输出</li>
+<li>xsl注入效果与该代码情况类似</li>
 <li>该代码造成了任意代码执行</li>
 </ol>
 </blockquote>
 <h2 id="xalan"><strong>Xalan</strong></h2>
 <h4 id="1-xslt的简单探测"><em><strong>1. xslt的简单探测</strong></em></h4>
-<p>我们控制path内容，可以得到xslt解释器的基本信息</p>
+<p>我们控制path内容(也可用于测试带回显的xsl注入)，可以得到xslt解释器的基本信息</p>
 <pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
 &lt;xsl:stylesheet xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot; version=&quot;2.0&quot;&gt;
 &lt;xsl:output version=&quot;1.0&quot; indent=&quot;yes&quot; encoding=&quot;iso-8859-1&quot; method=&quot;xml&quot;/&gt;
@@ -120,8 +121,10 @@ public class xsl_demo {
 <figure data-type="image" tabindex="1"><img src="https://ICheeryI.github.io/post-images/1605628136434.PNG" alt="" loading="lazy"></figure>
 <h4 id="2-xalan基础"><em><strong>2. Xalan基础</strong></em></h4>
 <blockquote>
-<p>xalan-java是一套xslt处理器,用来将XML文件转换为HTML,TEXT和XML等其他类型文件格式<br>
-xalan 其他的不用关心，直接关注他对xslt的扩展实现 <a href="https://xml.apache.org/xalan-j/extensions.html">文档</a></p>
+<ol>
+<li>xalan-java是一套xslt处理器,用来将XML文件转换为HTML,TEXT和XML等其他类型文件格式</li>
+<li>xalan 其他的不用关心，直接关注他对xslt的扩展实现 <a href="https://xml.apache.org/xalan-j/extensions.html">文档</a></li>
+</ol>
 </blockquote>
 <h4 id="使用符合xalan的xslt扩展"><em><strong>使用符合xalan的xslt扩展</strong></em></h4>
 <ol>
